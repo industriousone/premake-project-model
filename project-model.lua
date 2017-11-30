@@ -54,6 +54,50 @@
 
 
 ---
+-- Export a project object, using the provided exporter function.
+--
+-- @param object
+--    The target project model object.
+-- @param filename
+--    The full file system path of the target file.
+-- @param exporter
+--    The function that export the object.
+-- @return
+--    True if the target file was modified; false if the exported object
+--    is the same as the current contents of the file.
+---
+
+	function m.export(object, filename, exporter)
+		-- export the object and capture the output
+		local output = p.capture(function()
+			p.indent('\t', 0)
+			exporter(object)
+			p.indent('\t', 0)
+		end)
+
+		-- create the target folder
+		local dir = path.getdirectory(filename)
+		local ok, err = os.mkdir(dir)
+		if not ok then
+			error(err, 0)
+		end
+
+		-- output the results
+		local result, err = os.writefile_ifnotequal(output, filename)
+
+		if result > 0 then
+			printf("Generated %s...", path.getrelative(os.getcwd(), filename))
+			return true
+		elseif result == 0 then
+			return false
+		else
+			error(err, 0)
+		end
+	end
+
+
+
+---
 -- End of module
 ---
 

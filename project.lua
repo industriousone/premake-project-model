@@ -52,6 +52,24 @@
 
 
 ---
+-- Export the project, using the provided exporter function.
+--
+-- @param filename
+--    The full file system path of the target file.
+-- @param exporter
+--    The function that export the object.
+-- @return
+--    True if the target file was modified; false if the exported object
+--    is the same as the current contents of the file.
+---
+
+	function m:export(filename, exporter)
+		return Model.export(self, filename, exporter)
+	end
+
+
+
+---
 -- End of module
 ---
 
