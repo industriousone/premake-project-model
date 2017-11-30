@@ -9,6 +9,7 @@
 -- Copyright (c) 2017 Jason Perkins and the Premake project
 ---
 
+	local p = premake
 	local Query = require('query')
 
 	local m = {}
@@ -19,13 +20,40 @@
 
 
 ---
--- Fetch a workspace by its name.
+-- Cache the workspaces on the first fetch to avoid recalculating the same
+-- results. Use `reset()` to recalculate again.
 ---
 
-	function m.workspace(name)
-		local wks = m.Workspace.new(name)
-		return wks
+	m.workspaces = nil
+
+
+	function m._fetchWorkspaces()
+		if not m.workspaces then
+			m.workspaces = {}
+
+			local global = Query.new(premake.api.scope.global)
+			local workspaceNames = global:fetch('workspaces')
+
+			for i = 1, #workspaceNames do
+				local name = workspaceNames[i]
+				local wks = m.Workspace.new(name)
+
+				m.workspaces[i] = wks
+				m.workspaces[name] = wks
+			end
+		end
 	end
+
+
+
+---
+-- Force cached state to be cleared with the internal API state is reset.
+---
+
+	premake.override(premake.api, 'reset', function(base)
+		base()
+		m.reset()
+	end)
 
 
 
@@ -33,9 +61,8 @@
 -- Iterate over all defined workspaces.
 ---
 
-	function m:eachWorkspace()
-		local global = Query.new(premake.api.scope.global)
-		local workspaceNames = global:fetch('workspaces')
+	function m.eachWorkspace()
+		m._fetchWorkspaces()
 
 		local i = 0
 
@@ -43,13 +70,36 @@
 			local wks
 
 			i = i + 1
-			if i <= #workspaceNames then
-				wks = m.Workspace.new(workspaceNames[i])
+			if i <= #m.workspaces then
+				wks = m.workspaces[i]
 			end
 
 			return wks
 		end
 	end
+
+
+
+---
+-- Force the workspaces to be recalculated.
+---
+
+	function m.reset()
+		m.workspaces = nil
+	end
+
+
+
+---
+-- Fetch a workspace by its name.
+---
+
+	function m.workspace(name)
+		m._fetchWorkspaces()
+		local wks = m.workspaces[name]
+		return wks
+	end
+
 
 
 
