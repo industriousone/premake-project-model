@@ -41,3 +41,17 @@
 
 		test.isequal({ 'Workspace1', 'Workspace2', 'Workspace3' }, results)
 	end
+
+
+
+---
+-- Should cache workspaces and return the same instance each time.
+---
+
+	function suite.cachesWorkspaces()
+		workspace('Workspace1')
+
+		local wks1 = Model.workspace('Workspace1')
+		local wks2 = Model.workspace('Workspace1')
+		test.istrue(wks1 == wks2)
+	end

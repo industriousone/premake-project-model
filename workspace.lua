@@ -46,6 +46,10 @@
 		self.location = self._query:fetch('location') or query:fetch('basedir')
 		self.projects = self:_fetchProjects()
 
+		if not self.location then
+			error('No such workspace "' .. name .. '"', 3)
+		end
+
 		return self
 	end
 
@@ -87,6 +91,24 @@
 				return projects[i]
 			end
 		end
+	end
+
+
+
+---
+-- Export the workspace, using the provided exporter function.
+--
+-- @param filename
+--    The full file system path of the target file.
+-- @param exporter
+--    The function that export the object.
+-- @return
+--    True if the target file was modified; false if the exported object
+--    is the same as the current contents of the file.
+---
+
+	function m:export(filename, exporter)
+		return Model.export(self, filename, exporter)
 	end
 
 
