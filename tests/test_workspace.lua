@@ -38,6 +38,19 @@
 
 
 ---
+-- Should raise a reasonable error if a workspace can't be found.
+---
+
+	function suite.errors_onNoSuchWorkspace()
+		local ok, err = pcall(function ()
+			Model.Workspace.new('NoSuchWorkspace')
+		end)
+		test.isequal('No such workspace "NoSuchWorkspace"', err)
+	end
+
+
+
+---
 -- Location should be set to the absolute path to the configured output
 -- directory
 ---
@@ -60,6 +73,28 @@
 		test.isequal(os.getcwd(), wks.location)
 	end
 
+
+
+---
+-- If a filename is set, it should be surfaced.
+---
+
+	function suite.filename_isSurfacedIfSet()
+		filename('CoolWorkspace')
+		prepare()
+		test.isequal('CoolWorkspace', wks.filename)
+	end
+
+
+
+---
+-- If no filename is set, should default to the workspace name.
+---
+
+	function suite.filename_usesNameAsDefault()
+		prepare()
+		test.isequal('MyWorkspace', wks.filename)
+	end
 
 
 

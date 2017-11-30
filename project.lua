@@ -6,6 +6,7 @@
 ---
 
 	local Query = require('query')
+	local Model = ...
 
 	local m = {}
 
@@ -40,13 +41,17 @@
 	function m.new(workspaceName, projectName)
 		local query = Query.new(premake.api.scope.global):filter({ workspaces = workspaceName, projects = projectName })
 
-		local prj = {}
-		prj._query = query
-		setmetatable(prj, metatable)
+		local self = {}
+		self._query = query
+		setmetatable(self, metatable)
 
-		prj.location = query:fetch('location') or query:fetch('basedir')
+		self.location = query:fetch('location') or query:fetch('basedir')
 
-		return prj
+		if not self.location then
+			error('No such project "' .. projectName .. '"', 3)
+		end
+
+		return self
 	end
 
 

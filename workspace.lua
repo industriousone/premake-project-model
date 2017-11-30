@@ -46,6 +46,10 @@
 		self.location = self._query:fetch('location') or query:fetch('basedir')
 		self.projects = self:_fetchProjects()
 
+		if not self.location then
+			error('No such workspace "' .. name .. '"', 3)
+		end
+
 		return self
 	end
 
